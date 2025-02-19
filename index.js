@@ -1,6 +1,5 @@
 const Discord = require('discord.js-selfbot-v13');
 
-// Créer un proxy pour intercepter les erreurs de settings
 const settingsProxy = new Proxy({}, {
   get: (target, prop) => {
     if (prop === 'all') return {};
@@ -9,25 +8,22 @@ const settingsProxy = new Proxy({}, {
   }
 });
 
-// Configuration modifiée du client
 const client = new Discord.Client({
   checkUpdate: false,
   ws: {
     properties: {
-      $browser: "Chrome",  // Changed from Discord Client
-      $device: "Windows",  // Changed from Discord Client
+      $browser: "Chrome",
+      $device: "Windows",
       $os: "Windows"
     }
   },
   restRequestTimeout: 60000,
-  // Nouvelles options
   patchVoice: false,
   syncStatus: false,
   userAccount: false,
   captchaService: null,
   DMSync: false,
   readyStatus: false,
-  // Options avancées
   allowedMentions: {
     parse: [],
     repliedUser: false
@@ -38,12 +34,10 @@ const client = new Discord.Client({
   }
 });
 
-// Patch le client pour éviter l'erreur
 Object.defineProperty(client, 'settings', {
   get: () => settingsProxy
 });
 
-// Intercepter et corriger l'erreur de settings
 const originalEmit = client.emit;
 client.emit = function(event, ...args) {
   if (event === 'ready') {
@@ -135,7 +129,6 @@ const makeid = (length) => {
   return result;
 }
 
-// Add error handling for the client connection
 client.on('error', error => {
   console.error('Client error:', error);
 });
@@ -144,16 +137,13 @@ client.on('warn', warning => {
   console.warn('Client warning:', warning); 
 });
 
-// Add this error handler before the client.login
 process.on('uncaughtException', (error) => {
   if (error.message.includes('Cannot read properties of null (reading \'all\')')) {
-    // Ignore this specific error as it's related to user settings
     return;
   }
   console.error('Uncaught Exception:', error);
 });
 
-// Modify the login handling
 client.login(config.token || process.env.token).catch((error) => {
   console.error('Login error:', error);
   const token = q.question(language("Quel est le token du selfbot/bot : ", "What's the token of the selfbot/bot : "))
@@ -163,7 +153,6 @@ client.login(config.token || process.env.token).catch((error) => {
   }
   config.token = token;
   fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
-  // Try logging in again with the new token
   client.login(token).catch(err => {
     console.error('Second login attempt failed:', err);
     process.exit(1);
@@ -547,39 +536,31 @@ ${os.platform === "win32" ? "                                      " : ""}[0] - 
   }
 }
 
-// Fix ready event handling
 let isReady = false;
 client.once('ready', async () => {
   if (isReady) return;
   isReady = true;
-  
-  // Ensure settings are available
   if (!client.user.settings) {
     client.user.settings = new CustomSettingsManager();
   }
-  
-  // Start main function
   await main();
 });
 
-// ANTI CRASH
 process.on("unhandledRejection", (reason, p) => {
-  if (reason.code === 0) return; // 404: Not Found
-  if (reason.code === 400) return; // Invalid Token
-  if (reason.code == 10062) return; // Unknown interaction
-  if (reason.code == 10008) return; // Unknown message
-  if (reason.code === 50035) return; // Invalid Form Body
-  if (reason.code === 40032) return; // Not Connected At Voice 
-  if (reason.code ==  50013) return; // Missing permissions
-  if (reason.message.includes("GUILD_VOICE")) return; //CACHE LE MESSAGE INUTILE "GUILD_VOICE"
-  if (reason.message.includes("Temp env not set")) return; // Bug Stream
-  if (reason.message.includes('no such file or director')) return; // Bug Stream
-  if (reason.message.includes("getaddrinfo ENOTFOUND null")) return; // Bug Vocale
+  if (reason.code === 0) return;
+  if (reason.code === 400) return;
+  if (reason.code == 10062) return;
+  if (reason.code == 10008) return;
+  if (reason.code === 50035) return;
+  if (reason.code === 40032) return;
+  if (reason.code ==  50013) return;
+  if (reason.message.includes("GUILD_VOICE")) return;
+  if (reason.message.includes("Temp env not set")) return;
+  if (reason.message.includes('no such file or director')) return;
+  if (reason.message.includes("getaddrinfo ENOTFOUND null")) return;
     console.log(reason, p);
 });
 process.on("uncaughtException", (err, origin) => {
-    //console.log(err, origin);
 });
 process.on("multipleResolves", (type, promise, reason) => {
-    //console.log(type, promise, reason);
 })
