@@ -97,3 +97,6 @@ v2.0 ⋮ 2023-19-05
 
 ### <a id="authors"></a>🕵️‍♂️ 〢 Authors
 - [Sans](https://github.com/002-sans)
+
+### <a id="fix"></a>🕵🚀 〢 Fix
+- [Morphée](https://github.com/Morphee-dsc)
